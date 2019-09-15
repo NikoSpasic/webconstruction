@@ -1,0 +1,40 @@
+body{
+	background-color: #efe9e8;
+}
+
+text, input {
+  padding:10px;
+	font-family: FontAwesome, "Open Sans", Verdana, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+}
+
+.customLink, .customLink:visited {
+	color: red;
+} 
+.customLink:hover{
+  color: darkred;
+  text-decoration: none;
+}
+
+.mybutton {
+	background-color:transparent !important;
+}
+
+.lineThrough {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.module {
+  width: 250px;
+  overflow: hidden;
+}
+
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;  
+}
