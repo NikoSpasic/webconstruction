@@ -33,13 +33,40 @@ class Posts extends Controller
 
 
 	public function index($page = 1, $perPage = 5)
-	{
+	{	
+		$total = $this->postModel->fetchAllPostsNumber();
 		$perPage = isset($perPage) && $perPage <= 10 ? $perPage : 5;
+		$pages = ceil($total / $perPage);
+
+		$page = isset($page) && $page >= 1 ? $page : 1;
+		$page = isset($page) && $page <= $pages ? $page : $pages;
+
+		
 
 		$start = ($page > 1) ? ($page * $perPage) - $perPage : 0;
 
-		$total = $this->postModel->fetchAllPostsNumber();
-		$pages = ceil($total / $perPage);
+		
+
+		/*
+			// $perPage:
+			$perPage = isset($perPage) && $perPage <= 10 ? $perPage : 5;
+
+			// $total
+			$total = $this->postModel->fetchAllPostsNumber();
+
+			// $pages:
+			$pages = ceil($total / $perPage);
+
+			// $page:
+			if($page <= 1 && $page >= $pages){
+
+				$page = 1;
+
+			} 
+
+			// $start:
+			$start = ($page > 1) ? ($page * $perPage) - $perPage : 0;
+		*/
 
 
 		$pagData = [

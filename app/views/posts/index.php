@@ -48,7 +48,7 @@
 	<nav aria-label="...">
 		<ul class="pagination">
 			
-			<li class="page-item">
+			<li class="page-item <?= $data['pagData']['page'] <= 1 ? 'disabled' : '' ?>">
 				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] - 1 ?>/<?= $data['pagData']['perPage'] ?>">Prev</a>
 			</li>
 
@@ -62,7 +62,7 @@
 
 			<?php endfor ?>
 
-			<li class="page-item">
+			<li class="page-item <?= $data['pagData']['page'] >= $data['pagData']['pages'] ? 'disabled' : '' ?>">
 				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] + 1 ?>/<?= $data['pagData']['perPage'] ?>">Next</a>
 			</li> 
 
