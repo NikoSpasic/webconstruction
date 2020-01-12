@@ -5,203 +5,218 @@ class Users extends Controller
 {
 	private $userModel;
 
+	/**
+	 * 
+	 */
 	public function __construct()
 	{
 		# Instantiation MODEL-a User:
 		$this->userModel = $this->model('User');
 	}
 
+	/**
+	 * 
+	 */
 	public function index()
 	{
 		$this->view('index');
 	}
 
+	/**
+	 * 
+	 */
 	public function register()
 	{
 		// Check for post
-		if($_SERVER['REQUEST_METHOD'] == 'POST')
-		{
+		if(isset($_POST['formRegistration'])) {
 			// Sanitize POST data
-			$_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+			// $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 			// Init data
-			$data = [
-				'first_name' => trim($_POST['first_name']),
-				'last_name' => trim($_POST['last_name']),
-				'username' => trim($_POST['username']),
-				'email' => trim($_POST['email']),
-				'password' => trim($_POST['password']),
-				'confirm_password' => trim($_POST['confirm_password']),
-				'first_name_err' => '',
-				'last_name_err' => '',
-				'username_err' => '',
-				'email_err' => '',
-				'password_err' => '',
-				'confirm_password_err' => ''
+			$registerData = [
+				'first_name' 				=> cleanString($_POST['first_name']),
+				'last_name' 				=> cleanString($_POST['last_name']),
+				'username' 					=> cleanString($_POST['username']),
+				'email' 						=> cleanString($_POST['email']),
+				'password' 					=> cleanString($_POST['password']),
+				'confirm_password' 		=> cleanString($_POST['confirm_password']),
+				'first_name_err' 			=> null,
+				'last_name_err' 			=> null,
+				'username_err' 			=> null,
+				'email_err' 				=> null,
+				'password_err' 			=> null,
+				'confirm_password_err' 	=> null,
 			];
 
-			# Validate Email:
-			if(empty($data['email']))
-			{
-				$data['email_err'] = 'Please enter email';
-			} elseif($this->userModel->findUserByEmail($data['email'])) {
-				$data['email_err'] = 'Email is already taken';
+			// Validate FirstName:
+			$registerData['first_name_err'] = checkInputString($registerData['first_name'], 2);
+
+			// Validate Last Name:
+			$registerData['last_name_err'] = checkInputString($registerData['last_name'], 2);
+			
+			// Validate Username:
+			if(checkInputString($registerData['username'])) {
+
+				$registerData['username_err'] = checkInputString($registerData['username'], 2, 25);
+
+			} elseif($this->userModel->findUserByUsername($registerData['username'])) {
+
+				$registerData['username_err'] = 'Username is already taken';
 			}
-			# Validate FirstName:
-			if(empty($data['first_name']))
-			{
-				$data['first_name_err'] = 'Please enter first name';
+
+			// Validate Email:
+			if(checkEmail($registerData['email'])) {
+
+				$registerData['email_err'] = checkEmail($registerData['email']);
+
+			} elseif($this->userModel->findUserByEmail($registerData['email'])) {
+
+				$registerData['email_err'] = 'Email is already taken';
 			}
-			# Validate Last Name:
-			if(empty($data['last_name']))
-			{
-				$data['last_name_err'] = 'Please enter last name';
+
+			// Validate Password:
+			$registerData['password_err'] = checkInputString($registerData['password']);
+
+			// Validate Confirm Password:
+			if(checkInputString($registerData['confirm_password'])) {
+
+				$registerData['confirm_password_err'] = checkInputString($registerData['confirm_password']);
+
+			} elseif($registerData['confirm_password'] != $registerData['password']) {
+
+				$registerData['confirm_password_err'] = 'Passwords do not match';
 			}
-			# Validate Username:
-			if(empty($data['username']))
-			{
-				$data['username_err'] = 'Please enter username';
-			} elseif($this->userModel->findUserByUsername($data['username'])) {
-				$data['username_err'] = 'Username is already taken';
-			}
-			# Validate Password:
-			if(empty($data['password']))
-			{
-				$data['password_err'] = 'Please enter password';
-			}elseif(strlen($data['password']) < 6) {
-				$data['password_err'] = 'Password must be at least 6 characters';
-			}
-			# Validate Confirm Password:
-			if(empty($data['confirm_password']))
-			{
-				$data['confirm_password_err'] = 'Please confirm password';
-			}elseif($data['confirm_password'] != $data['password']) {
-				$data['confirm_password_err'] = 'Passwords do not match';
-			}
-			# Make sure errors are empty:
-			if(empty($data['email_err']) && empty($data['first_name_err']) && empty($data['last_name_err']) && empty($data['username_err']) && empty($data['password_err']) && empty($data['confirm_password_err']))
-			{
-				// Validated
+
+			// Make sure errors are empty:
+			if(($registerData['email_err']) || ($registerData['first_name_err']) || ($registerData['last_name_err']) || 
+				($registerData['username_err']) || ($registerData['password_err']) || ($registerData['confirm_password_err'])) {
+
+				// LOAD VIEW WITH ERRORS
+				$this->view('users/register', $registerData);
+
+			} else {
+
+				// VALIDATED
 
 				# Hash Password:
-				$data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
+				$registerData['password'] = password_hash($registerData['password'], PASSWORD_DEFAULT);
 
 				# Register USER:
-				if($this->userModel->register($data))
-				{
+				if($this->userModel->register($registerData)) {
+
 					flash('register_success', 'You are registered and can log in');
 					redirect('users/login');
-				} else 
-				{
+
+				} else {
+
 					die('Something went wrong');
 				}
-			} else 
-			{
-				// Load view with errors
-				$this->view('users/register', $data);
 			}
 
-		} else 
-		{
+		} else {
+
 			// Init data
-			$data = [
-				'first_name' => '',
-				'last_name' => '',
-				'username' => '',
-				'email' => '',
-				'password' => '',
-				'confirm_password' => '',
-				'name_err' => '',
-				'email_err' => '',
-				'password_err' => '',
-				'confirm_password_err' => ''
-			];
+			$registerData = null;
 
 			// Load view
-			$this->view('users/register', $data);
+			if(!isLoggedIn()){
+
+				$this->view('users/register', $registerData);
+
+			} else {
+
+				redirect('posts');
+			}
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public function login()
 	{
-		// Check for post
-		if($_SERVER['REQUEST_METHOD'] == 'POST')
-		{
+		if(isset($_POST['formLogin'])) {
 			// Sanitize POST data
-			$_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-			// Process form
-
+			// $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+			
+			# --> Process form <--
 			// Init data
-			$data = [
-				'username' => trim($_POST['username']),
-				'password' => trim($_POST['password']),
-				'username_err' => '',
-				'password_err' => ''
+			$loginData = [
+				'username' 		=> cleanString($_POST['username']),
+				'password' 		=> cleanString($_POST['password']),
+				'username_err' => null,
+				'password_err' => null,
+				'logging_err' 	=> null,
 			];
 
-			# Validate Username:
-			if(empty($data['username']))
-			{
-				$data['username_err'] = 'Please enter username';
-			}
-			# Validate Password:
-			if(empty($data['password']))
-			{
-				$data['password_err'] = 'Please enter password';
-			}
-			# Check for USER/EMAIL:
-			if ($this->userModel->findUserByUsername($data['username']))
-			{
-				// User Found
-			} else
-			{
-				// User not Found 
-				$data['username_err'] = 'No user found';
-			}
-			# Make sure errors are empty:
-			if(empty($data['username_err']) && empty($data['password_err']))
-			{
-				// Check and set logged in user
-				$loggedInUser = $this->userModel->login($data['email'], $data['username'], $data['password']);
-				if($loggedInUser)
-				{
-					//CREATE SESSION
-					$this->createUserSession($loggedInUser);
-				} else
-				{
-					$data['password_err'] = 'Password incorrect';
-					$this->view('users/login', $data);
-				}
-			}else {
+			// Validate Password:
+			$loginData['password_err'] = checkInputString($loginData['password']);		
+
+			// Validate Username:
+			if(checkInputString($loginData['username'], 2)) {
+
+				$loginData['username_err'] = checkInputString($loginData['username'], 2);
+
+			} elseif(!$this->userModel->findUserByUsername($loginData['username'])) {
+
+				$loginData['username_err'] = 'No user found';
+			}			
+
+			// Make sure errors are empty:
+			if($loginData['username_err'] || $loginData['password_err']) {
+
+				$loginData['logging_err'] = 'The email and password you entered did not match our records. <br> Please double-check and try again.';
 				// Load view with errors
-				$this->view('users/login', $data);
+				$this->view('users/login', $loginData);
+
+			} else {				
+				// Check and set logged in user
+				$loggedInUser = $this->userModel->login($loginData['username'], $loginData['password']);
+				
+				if($loggedInUser)	{
+					//CREATE SESSION:
+					$this->createUserSession($loggedInUser);
+
+				} else {
+
+					$loginData['logging_err'] = 'The email and password you entered did not match our records. Please double-check and try again.';
+					$this->view('users/login', $loginData);
+				}
 			}
 
-		}else {
+		} else {
 			// Init data
-			$data = [
-				'username' => '',
-				'email' => '',
-				'password' => '',
-				'username_err' => '',
-				'password_err' => ''
-			];
+			$loginData = null;
+
 			// Load view
-			$this->view('users/login', $data);
+			if(!isLoggedIn()){
+
+				$this->view('users/login', $loginData);
+
+			} else {
+
+				redirect('posts');
+			}
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public function createUserSession($user)
 	{
-		$_SESSION['user_id'] = $user->id;
-		$_SESSION['user_email'] = $user->email;
-		$_SESSION['user_first_name'] = $user->first_name;
-		$_SESSION['user_last_name'] = $user->last_name;
-		$_SESSION['user_username'] = $user->username;
+		$_SESSION['user_id'] 			= $user->user_id;
+		$_SESSION['user_email'] 		= $user->user_email;
+		$_SESSION['user_first_name'] 	= $user->user_firstname;
+		$_SESSION['user_last_name'] 	= $user->user_lastname;
+		$_SESSION['user_username'] 	= $user->user_username;
 
 		redirect('posts');
 	}
 
+	/**
+	 * 
+	 */
 	public function logout()
 	{
 		unset($_SESSION['user_id']);
@@ -209,8 +224,9 @@ class Users extends Controller
 		unset($_SESSION['user_first_name']);
 		unset($_SESSION['user_last_name']);
 		unset($_SESSION['user_username']);
+
 		session_destroy();
+
 		redirect('users/login');
 	}
-
 }

@@ -1,17 +1,28 @@
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
 <footer class="mt-5">
+
 	<div class="card text-center bg-light">
+
 	  <div class="card-body">
+
 	    <h5 class="card-title">Lorem ipsum dolor sit amet</h5>
+
 	    <p class="card-text">Consectetur adipisicing elit. Quos quaerat debitis expedita modi praesentium ipsum.</p>
+
 	    <a href="<?= URLROOT; ?>" class="btn btn-outline-dark">Home</a>
+	 
 	  </div>
+
 	</div>
+
 </footer>
 
 </div>
 
 <div class="card text-center card-footer text-white bg-secondary">
-	<p>&#8750; Post-Todo 2019</p>
+	<p>WebConstructions <?= date("Y") ?></p>
 </div>
 
 <!-- bootstrap js -->

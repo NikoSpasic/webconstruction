@@ -7,7 +7,9 @@
 
 abstract class Controller 
 {
-	// Load model
+	/**
+	  * Load model
+	  */ 
 	public function model($model)
 	{
 		require_once ('../app/models/' . $model . '.php');
@@ -16,15 +18,19 @@ abstract class Controller
 		return new $model();
 	}
 
-	// Load view 
-	public function view($view, $data = [])
+	/**
+	  * Load view
+	  */  
+	public function view($view, $data=[])
 	{
 		// Check for view file
-		if(file_exists('../app/views/' . $view . '.php'))
-		{
+		if(file_exists('../app/views/' . $view . '.php')) {
+
 			require_once '../app/views/' . $view . '.php';
+
 		} else {
-			die('View does not exist');
+
+			die('VIEW DOES NOT EXIST');
 		}
 	}
 }

@@ -2,11 +2,11 @@
 // load  config
 require_once ('config/config.php');
 
-// Load helpers:
-require_once ('helpers/url_helper.php');
-
 // SESSION helper:
 require_once ('helpers/session_helper.php');
+
+// Functions helper:
+require_once ('helpers/functions.php');
 
 // load libraries
 /*

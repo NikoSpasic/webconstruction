@@ -3,117 +3,145 @@
 
 class Post
 {
-	private $db;
+	private $pdo;
 
+	/**
+	 * Connection with DB
+	 */
 	public function __construct()
 	{
-		$this->db = new Database;
+		$this->pdo = Connection::getInstance()->getPdo();
 	}
 
-	public function getPosts()
+	/**
+	 * 
+	 */
+	// public function getPosts()
+	// {
+	// 	$dbData = [];
+
+	// 	$sql = "SELECT * FROM post INNER JOIN user USING(user_id) ORDER BY post_created DESC LIMIT 5";
+
+	// 	$statement = $this->pdo->prepare($sql);
+	// 	$statement->execute();
+
+	// 	$dbData['allPosts']  		= $statement->fetchAll(PDO::FETCH_OBJ);
+	// 	$dbData['countOfPosts'] 	= $statement->rowCount();
+
+	// 	return $dbData;
+	// }
+
+
+
+	public function getPosts($data)
 	{
-		$this->db->query(
-			'SELECT *,
-			posts.id as postId,
-			users.id as userId,
-			posts.created_at as postCreated,
-			users.created_at as userCreated
-			FROM posts
-			INNER JOIN users
-			ON posts.user_id = users.id
-			ORDER BY posts.created_at DESC
-			'); 
+		$dbData = [];
 
-		$results = $this->db->resultSet();
-		$rowCount = $this->db->rowCount();
+		$sql = "SELECT * FROM post INNER JOIN user USING(user_id) ORDER BY post_created LIMIT ?, ?";
 
-		return $results;
+		$statement = $this->pdo->prepare($sql);
+		$statement->bindValue(1, $data['start'], PDO::PARAM_INT);
+		$statement->bindValue(2, $data['perPage'], PDO::PARAM_INT);
+		$statement->execute();
+
+		$dbData['allPosts']  		= $statement->fetchAll(PDO::FETCH_OBJ);
+		$dbData['countOfPosts'] 	= $statement->rowCount();
+
+		return $dbData;
 	}
 
-	#Pagination
-	public function paginationPosts($data)
+
+	public function fetchAllPostsNumber()
 	{
-		$articles = $this->db->query("
-			SELECT SQL_CALC_FOUND_ROWS id, title, body,
-			FROM posts
-			LIMIT :start, :perPage
-		"); 
 
-		$this->db->bind(':start', $data['start']);
-		$this->db->bind(':perPage', $data['perPage']);
+		$sql = "SELECT COUNT(post_id) FROM post";
 
-		$articles->execute();
-		$articles = $articles->fetchAll(PDO::FETCH_OBJ);
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute();
 
-		$total = $this->db->query("SELECT FOUND_ROWS() as total")->fetch()['total'];
-		$data['pages'] = ceil($total / $data['perPage']);
+		$count = $statement->fetchColumn();
 
-		return $total;
-
+		return $count;
 	}
 
+
+
+
+	/**
+	 * 
+	 */
 	public function addPost($data)
 	{
-		$this->db->query('INSERT INTO posts (user_id, title, body) VALUES (:user_id, :title, :body)');
+		$sql 		= "INSERT INTO post (post_title, post_body, user_id) VALUES (?, ?, ?)";
+		$params 	= [
+			$data['title'], $data['body'], $data['user_id']
+		];
 
-		$this->db->bind(':user_id', $data['user_id']);
-		$this->db->bind(':title', $data['title']);
-		$this->db->bind(':body', $data['body']);
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
 
-		if($this->db->execute())
-		{
-			return true;
-		} else
-		{
-			return false;
-		}
+		return $this->pdo->lastInsertId();
 	}
 
+	/**
+	 * 
+	 */
 	public function getPostById($id)
 	{
-		$this->db->query('SELECT * FROM posts WHERE id = :id');
-		$this->db->bind(':id', $id);
+		$sql 		= "SELECT * FROM post WHERE post_id = ?";
+		$params 	= [$id];
 
-		$row = $this->db->single();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
 
-		// Check row
-		if($this->db->rowCount() > 0)
-		{
+		$row = $statement->fetch(PDO::FETCH_OBJ);
+		if($statement->rowCount() > 0) {
+
 			return $row;
+
 		} else {
+
 			return false;
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public function updatePost($data)
 	{
-		$this->db->query('UPDATE posts SET title = :title, body = :body WHERE id = :id');
+		$sql 		= "UPDATE post SET post_title = ?, post_body = ? WHERE post_id = ?";
+		$params 	= [
+			$data['title'], $data['body'], $data['id'],
+		];
 
-		$this->db->bind(':id', $data['id']);
-		$this->db->bind(':title', $data['title']);
-		$this->db->bind(':body', $data['body']);
+		$statement = $this->pdo->prepare($sql);
+		if($statement->execute($params)) {
 
-		if($this->db->execute())
-		{
 			return true;
-		} else
-		{
+
+		} else {
+
 			return false;
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public function deletePost($id)
 	{
-		$this->db->query('DELETE FROM posts WHERE id = :id');
-		$this->db->bind(':id', $id);
+		$sql 		= "DELETE FROM post WHERE post_id = ?";
+		$params 	= [$id];
 
-		if($this->db->execute())
-		{
+		$statement = $this->pdo->prepare($sql);
+		if($statement->execute($params)) {
+
 			return true;
-		} else
-		{
+
+		} else {
+			
 			return false;
 		}
-
 	}
 }

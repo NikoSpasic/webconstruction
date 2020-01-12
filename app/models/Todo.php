@@ -3,96 +3,116 @@
 
 class Todo
 {
-	private $db;
+	private $pdo;
 
+	/**
+	 * 
+	 */
 	public function __construct()
 	{
-		$this->db = new Database;
+		$this->pdo = Connection::getInstance()->getPdo();
 	}
 
+	/**
+	 * 
+	 */
 	public function getTodos()
 	{
-		$this->db->query(
-			'SELECT *,
-			todos.id as todoId,
-			users.id as userId,
-			todos.due as todoDue,
-			users.created_at as userCreated
-			FROM todos
-			INNER JOIN users
-			ON todos.user_id = users.id
-			ORDER BY todos.due
-			');
+		// $sql = "SELECT *,
+		// 	todos.id as todoId,
+		// 	users.id as userId,
+		// 	todos.due as todoDue,
+		// 	users.created_at as userCreated
+		// 	FROM todos
+		// 	INNER JOIN users
+		// 	ON todos.user_id = users.id
+		// 	ORDER BY todos.due";
+		$sql = "SELECT * FROM todo INNER JOIN user USING(user_id) ORDER BY todo_due";
 
-		$results = $this->db->resultSet();
-		$rowCount = $this->db->rowCount();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute();
 
-		return $results;
+		$data['allTodos']  		= $statement->fetchAll(PDO::FETCH_OBJ);
+		$data['countOfTodos'] 	= $statement->rowCount();
+
+		return $data;
 	}
 
+	/**
+	 * 
+	 */
 	public function addTodo($data)
 	{
-		$this->db->query("INSERT INTO todos (user_id, description, due) VALUES (:user_id, :description, :due)");
+		$sql = "INSERT INTO todo (todo_description, user_id) VALUES (?, ?)";
+		$params = [
+			$data['description'], $data['user_id']
+		];
 
-		$this->db->bind(':user_id', $data['user_id']);
-		$this->db->bind(':description', $data['description']);
-		$this->db->bind(':due', $data['due']);
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
 
-		if($this->db->execute())
-		{
-			return true;
-		} else {
-			return false;
-		}
+		return $this->pdo->lastInsertId();
 	}
 
-	#todo
+	/**
+	 * 
+	 */
 	public function getTodoById($id)
 	{
-		$this->db->query("SELECT * FROM todos WHERE id = :id");
-		$this->db->bind(':id', $id);
+		$sql 		= "SELECT * FROM todo WHERE todo_id = ?";
+		$params 	= [$id];
 
-		$row = $this->db->single();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
 
-		// Check row
-		if($this->db->rowCount() > 0)
-		{
+		$row = $statement->fetch(PDO::FETCH_OBJ);
+		if($statement->rowCount() > 0) {
+
 			return $row;
+
 		} else {
+
 			return false;
 		}
 	}
 
-	#todo
+	/**
+	 * 
+	 */
 	public function updateTodo($data)
 	{
-		$this->db->query('UPDATE todos SET complete = :complete WHERE id = :id ');
+		$sql = "UPDATE todo SET todo_complete = ? WHERE todo_id = ?";
+		$params = [
+			$data['complete'], $data['id']
+		];
 
-		$this->db->bind(':id', $data['id']);
-		$this->db->bind(':complete', $data['complete']);
+		$statement = $this->pdo->prepare($sql);
+		if($statement->execute($params)) {
 
-		if($this->db->execute())
-		{
 			return true;
-		} else
-		{
+
+		} else {
+
 			return false;
 		}
 	}
 
-	#todo
+	/**
+	 * 
+	 */
 	public function deleteTodo($id)
 	{
-		$this->db->query("DELETE FROM todos WHERE id = :id");
-		$this->db->bind(':id', $id);
+		$sql = "DELETE FROM todo WHERE todo_id = ?";
+		$params = [$id];
 
-		if($this->db->execute())
-		{
+		$statement = $this->pdo->prepare($sql);
+		if($statement->execute($params)) {
+
 			return true;
-		} else
-		{
+
+		} else {
+
 			return false;
 		}
-
 	}
 }

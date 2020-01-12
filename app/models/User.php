@@ -3,100 +3,127 @@
 
 class User
 {
-	private $db;
+	private $pdo;
 
+	/**
+	 * 
+	 */
 	public function __construct()
 	{
-		$this->db = new Database;
+		$this->pdo = Connection::getInstance()->getPdo();
 	}
 
-	# Register USER
+	/**
+	  * Register USER
+	  */ 
 	public function register($data)
 	{
-		$this->db->query('INSERT INTO users (first_name, last_name, username, email, password) VALUES (:first_name, :last_name, :username, :email, :password)');
-		# Bind values
-		$this->db->bind(':first_name', $data['first_name']);
-		$this->db->bind(':last_name', $data['last_name']);
-		$this->db->bind(':username', $data['username']);
-		$this->db->bind(':email', $data['email']);
-		$this->db->bind(':password', $data['password']);
-		# Execute
-		if($this->db->execute())
-		{
-			return true;
-		} else {
-			return false;
-		}
+		$sql = "INSERT INTO 
+			user (user_firstname, user_lastname, user_username, user_email, user_password) 
+			VALUES (?, ?, ?, ?, ?)";
+		$params = [
+			$data['first_name'], $data['last_name'], $data['username'], $data['email'], $data['password'],
+		];
+
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
+
+		return $this->pdo->lastInsertId();
 	}
 
-	# Login USER:
-	public function login($email=null, $username=null, $password)
+	/**
+	 * Login USER
+	 */
+	public function login($username, $password)
 	{
-		$this->db->query('SELECT * FROM users WHERE (email = :email OR username = :username)');
-		$this->db->bind(':email', $email);
-		$this->db->bind(':username', $username);
+		$sql = "SELECT * FROM user WHERE (user_username = ?)";
+		$params = [$username];
 
-		$row = $this->db->single();
-		$hashed_password = $row->password;
-		if(password_verify($password, $hashed_password))
-		{
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
+
+		$row = $statement->fetch(PDO::FETCH_OBJ);
+
+		$hashed_password = $row->user_password;
+
+		if(password_verify($password, $hashed_password)) {
+
 			return $row;
-		} else
-		{
+
+		} else {
+
 			return false;
 		}
 	}
 
-	# Find USER by Email:
+	/**
+	 * Find USER by Email:
+	 */
 	public function findUserByEmail($email)
 	{
-		$this->db->query('SELECT * FROM users WHERE email = :email');
-		$this->db->bind(':email', $email);
+		$sql = "SELECT * FROM user WHERE user_email = ?";
+		$params = [$email];
 
-		$row = $this->db->single();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
+
+		$row = $statement->fetch(PDO::FETCH_OBJ);
 
 		// Check row
-		if($this->db->rowCount() > 0)
-		{
+		if($statement->rowCount() > 0) {
+
 			return true;
-		} else 
-		{
+
+		} else {
+
 			return false;
 		}
 	}
 
-	# Find USER by Username:
+	/**
+	 * Find USER by Username:
+	 */
 	public function findUserByUsername($username)
 	{
-		$this->db->query('SELECT * FROM users WHERE username = :username');
-		$this->db->bind(':username', $username);
+		$sql ="SELECT * FROM user WHERE user_username = ?";
+		$params = [$username];
 
-		$row = $this->db->single();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
+
+		$row = $statement->fetch(PDO::FETCH_OBJ);
 
 		// Check row
-		if($this->db->rowCount() > 0)
-		{
+		if($statement->rowCount() > 0) {
+
 			return true;
-		} else 
-		{
+
+		} else {
+
 			return false;
 		}
 	}
 
-	# Get USER by id:
+	/**
+	 * Get USER by id:
+	 */
 	public function getUserById($id)
 	{
-		$this->db->query('SELECT * FROM users WHERE id = :id');
-		$this->db->bind(':id', $id);
+		$sql = "SELECT * FROM user WHERE user_id = ?";
+		$params = [$id];
 
-		$row = $this->db->single();
+		$statement = $this->pdo->prepare($sql);
+		$statement->execute($params);
+
+		$row = $statement->fetch(PDO::FETCH_OBJ);
 
 		// Check row
-		if($this->db->rowCount() > 0)
-		{
+		if($statement->rowCount() > 0) {
+
 			return $row;
-		} else 
-		{
+
+		} else {
+
 			return false;
 		}
 	}

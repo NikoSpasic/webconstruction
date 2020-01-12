@@ -2,56 +2,91 @@
 
 <?php flash('post_message'); ?>
 
-
-
 	<div class="row mb-3">
 
-		<div class="col-md-6">
-			<h1>My To Do List</h1>
+		
+		<!-- New Task -->
+		<div class="col-md-12">
+
+			<form  action="<?= URLROOT ?>/todos/add" method="post">
+				<input type="hidden" name="formAddTodo">
+
+				<div class="input-group mb-3">
+
+				  <input type="text" name="description" class="form-control" placeholder="New Task" value="<?= $data['description'] ?? '' ?>" >
+				  
+				  <div class="input-group-append">
+
+				    <button class="btn btn-outline-primary" type="submit"><i class="fa fa-plus" aria-hidden="true"></i></button>
+				  
+				  </div>
+
+				</div>
+				
+			</form>
+
 		</div>
-		<div class="col-md-6">
-			<a href="<?= URLROOT; ?>/todos/add" class="btn btn-outline-primary pull-right">
-				<i class="fa fa-pencil"></i> Add Todo
-			</a>
-		</div>
+		<!-- END New Task -->
 	</div>
 
+	<div class="col-md-6">
+		<h3>My To Do List:</h3>
+	</div>
 
-	<div class="my-3 p-3 bg-white rounded box-shadow">				
+	<?php if($data['todos']): ?>
+		
+			<?php foreach ($data['todos'] as $key=>$todo): ?>
 
-		<?php foreach ($data['todos'] as $todo): ?> 
-			<?php if($todo->user_id == $_SESSION['user_id']) : ?>
+				<div class="row mb-1">
+					<div class="col-md-11">
+						<form action="<?= URLROOT ?>/todos/edit/<?= $todo->todo_id ?>" method="POST">
+							<input type="hidden" name="formEditTodo">
 
-				<div class="card card-body my-3">
-					<h2 class="<?= $todo->complete ? 'lineThrough' : '' ?>"><?= $todo->description ?></h2>
-					<div class="bg-light p-1 mb-1">
-						<em> Due: <?= date("d/m/Y - H:i", strtotime($todo->due)) ?></em>
-					</div>
-					<div class="row">
-						<div class="col-md-1">
-							<form action="<?= URLROOT . '/todos/edit/' . $todo->todoId ?>" method="POST">
-								<input type="hidden" name="complete" value="<?= $todo->complete = 1 ?>" >
-								
-								<input type="submit" value="&#10004;" class="btn btn-outline-primary mt-1">
-							</form>
-						</div>
-						<div class="col-md-1">
-							<form action="<?= URLROOT . '/todos/edit/' . $todo->todoId ?>" method="POST">
-								<input type="hidden" name="complete" value="<?= $todo->complete = 0 ?>" >
-								
-								<input type="submit" value="&#10067;" class="btn btn-outline-primary mt-1">
-							</form> 
-						</div>
-						
-						<div class="col-md-10">
-							<form action="<?= URLROOT . '/todos/delete/' . $todo->todoId ?>" method="POST">
-								<input type="submit" value="&#10060;" class="btn btn-outline-danger mt-1 pull-right">
-							</form>
-						</div>
+							<input type="hidden" name="complete" 
+							value="<?= $todo->todo_complete = $todo->todo_complete == 'yes' ? 'no' : 'yes' ?>"  >				
+							
+								<button type="submit" class="text-left btn-outline-secondary form-control <?= $todo->todo_complete == 'no' ? 'lineThrough' : '' ?>">
+									<em><?= $key + 1 ?></em>. <strong><?= mb_strtoupper($todo->todo_description) ?></strong> 
+									<span class="float-right">
+										<em><?= date("d.m.Y", strtotime($todo->todo_due)) ?></em>
+										<em><?= date("H:i", strtotime($todo->todo_due)) ?></em>
+									</span>
+								</button>
+
+						</form>
+					</div>		
+					
+					<div class="float-left">		
+						<form action="<?= URLROOT ?>/todos/delete/<?= $todo->todo_id ?>" method="POST">
+							<input type="hidden" name="formDeleteTodo">
+
+								<button class="btn btn-outline-danger" type="submit"><i class="fa fa-minus" aria-hidden="true"></i></button>
+
+						</form>
 					</div>
 				</div>
-		<?php endif; ?>
-			<?php endforeach;  ?>
-    </div>
+
+			<?php endforeach ?>
+			
+	<?php endif ?>
+
+
+
+
+	
+	
+
+
+
+
+
+<script>
+
+	function myFunction() {
+		document.getElementById("myForm").submit();
+	}
+
+</script>
+
 
 <?php require_once (APPROOT . '/views/inc/footer.php'); ?>

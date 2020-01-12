@@ -1,5 +1,9 @@
-body{
+body {
 	background-color: #efe9e8;
+}
+
+a {
+  text-decoration: none;
 }
 
 text, input {
