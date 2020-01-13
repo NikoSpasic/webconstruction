@@ -37,7 +37,7 @@ class Post
 	{
 		$dbData = [];
 
-		$sql = "SELECT * FROM post INNER JOIN user USING(user_id) ORDER BY post_created LIMIT ?, ?";
+		$sql = "SELECT * FROM post INNER JOIN user USING(user_id) ORDER BY post_created DESC LIMIT ?, ?";
 
 		$statement = $this->pdo->prepare($sql);
 		$statement->bindValue(1, $data['start'], PDO::PARAM_INT);

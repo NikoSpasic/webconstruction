@@ -2,22 +2,37 @@
 
 class Pages extends Controller 
 {
+	private $pageModel;
+
+	/**
+	 * 
+	 */
+	public function __construct()
+	{
+		// Model-Instantiation:
+		$this->pageModel = $this->model('Page');
+	}
+
 	/**
 	 * 
 	 */
 	public function index()
 	{
-		if(isLoggedIn()) {
+		// if(isLoggedIn()) {
 
-			redirect('posts');
-		}
+		// 	redirect('posts');
+		// }
 
-		$indexData = [
-			'title'			=> 'Lorem ipsum dolor',
-			'description' 	=> 'Sit amet, consectetur adipisicing elit. Velit ducimus, molestias earum ea, exercitationem reprehenderit. Voluptate optio incidunt, quo voluptatibus delectus illum vitae laboriosam, odio, molestias beatae enim itaque? Molestiae ab laborum maiores!',
-		];
+		$pages = $this->pageModel->getPageElements();
 
-		$this->view('pages/index', $indexData);
+		$this->view('pages/index', compact('pages'));
+
+		// $indexData = [
+		// 	'title'			=> 'Lorem ipsum dolor',
+		// 	'description' 	=> 'Sit amet, consectetur adipisicing elit. Velit ducimus, molestias earum ea, exercitationem reprehenderit. Voluptate optio incidunt, quo voluptatibus delectus illum vitae laboriosam, odio, molestias beatae enim itaque? Molestiae ab laborum maiores!',
+		// ];
+
+		// $this->view('pages/index', $indexData);
 	}
 
 	/**

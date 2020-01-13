@@ -34,12 +34,12 @@ class Posts extends Controller
 
 	public function index($page = 1, $perPage = 5)
 	{	
-		$total = $this->postModel->fetchAllPostsNumber();
+		$total 	= $this->postModel->fetchAllPostsNumber();
 		$perPage = isset($perPage) && $perPage <= 10 ? $perPage : 5;
-		$pages = ceil($total / $perPage);
+		$pages 	= ceil($total / $perPage);
 
-		$page = isset($page) && $page >= 1 ? $page : 1;
-		$page = isset($page) && $page <= $pages ? $page : $pages;
+		$page 	= isset($page) && $page >= 1 ? $page : 1;
+		$page 	= isset($page) && $page <= $pages ? $page : $pages;
 
 		
 

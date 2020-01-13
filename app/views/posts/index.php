@@ -48,10 +48,17 @@
 	<nav aria-label="...">
 		<ul class="pagination">
 			
+			<!-- GO TO THE FIRST PAGE -->
+			<li class="page-item <?= $data['pagData']['page'] <= 1 ? 'disabled' : '' ?>">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/1/<?= $data['pagData']['perPage'] ?>">&laquo;</a>
+			</li> &nbsp;
+
+			<!-- PREV PAGE -->
 			<li class="page-item <?= $data['pagData']['page'] <= 1 ? 'disabled' : '' ?>">
 				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] - 1 ?>/<?= $data['pagData']['perPage'] ?>">Prev</a>
 			</li>
-
+			
+			<!-- PAGES -->
 			<?php for($x = 1; $x <= $data['pagData']['pages']; $x++): ?>
 
 				<li class="page-item <?= $data['pagData']['page'] == $x ? 'active' : '' ?>">
@@ -62,9 +69,15 @@
 
 			<?php endfor ?>
 
+			<!-- NEXT PAGE -->
 			<li class="page-item <?= $data['pagData']['page'] >= $data['pagData']['pages'] ? 'disabled' : '' ?>">
 				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] + 1 ?>/<?= $data['pagData']['perPage'] ?>">Next</a>
-			</li> 
+			</li> &nbsp;
+
+			<!-- GO TO THE LAST PAGE -->
+			<li class="page-item <?= $data['pagData']['page'] >= $data['pagData']['pages'] ? 'disabled' : '' ?>">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['pages'] ?>/<?= $data['pagData']['perPage'] ?>">&raquo;</a>
+			</li>
 
 		</ul>
 	</nav>
