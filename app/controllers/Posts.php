@@ -36,6 +36,7 @@ class Posts extends Controller
 	{	
 		$total 	= $this->postModel->fetchAllPostsNumber();
 		$perPage = isset($perPage) && $perPage <= 10 ? $perPage : 5;
+		// $perPage = isset($_GET['perPage']) ? $_GET['perPage'] : 5;
 		$pages 	= ceil($total / $perPage);
 
 		$page 	= isset($page) && $page >= 1 ? $page : 1;

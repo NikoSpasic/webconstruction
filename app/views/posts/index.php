@@ -46,7 +46,7 @@
 	<?php endif ?>
 
 	<nav aria-label="...">
-		<ul class="pagination">
+		<ul class="pagination float-left">
 			
 			<!-- GO TO THE FIRST PAGE -->
 			<li class="page-item <?= $data['pagData']['page'] <= 1 ? 'disabled' : '' ?>">
@@ -80,6 +80,29 @@
 			</li>
 
 		</ul>
+
+		<ul class="pagination float-right">
+
+			<li class="page-item disabled"><em class="page-link">Posts per page</em></li>
+
+			<li class="page-item">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] ?>/3">3</a> 
+			</li>
+
+			<li class="page-item">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] ?>/6">6</a> 
+			</li>
+
+			<li class="page-item">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] ?>/9">9</a> 
+			</li>
+
+			<li class="page-item">
+				<a class="page-link" href="<?= URLROOT ?>/posts/index/<?= $data['pagData']['page'] ?>/12">12</a> 
+			</li>
+
+		</ul>
+
 	</nav>
 
 <?php require_once (APPROOT . '/views/inc/footer.php'); ?>
